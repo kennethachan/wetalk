@@ -10,27 +10,39 @@ function App() {
   const recognitionRef = useRef(null);
 
   const startListening = () => {
-    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-      alert("Speech recognition not supported in this browser.");
+    if (!("SpeechRecognition" in window) && !("webkitSpeechRecognition" in window)) {
+      alert("Speech recognition is not supported in this browser. Try Google Chrome.");
       return;
     }
-
+  
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
-
+  
     recognition.onstart = () => setListening(true);
     recognition.onend = () => setListening(false);
-
+  
     recognition.onresult = async (event) => {
       const text = event.results[0][0].transcript;
       setMessages([...messages, { role: "user", content: text }]);
       sendMessage(text);
     };
-
-    recognition.start();
-    recognitionRef.current = recognition;
+  
+  // 🔹 Auto-stop after silence
+  recognition.onspeechend = () => {
+    setListening(false);
+    recognition.stop();
   };
+
+  // 🔹 Auto-stop if listening for more than 10 seconds
+  setTimeout(() => {
+    recognition.stop();
+    setListening(false);
+  }, 10000); // Stop after 10 seconds
+
+  recognition.start();
+  recognitionRef.current = recognition;
+};
 
   const sendMessage = async (text) => {
     const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
@@ -76,7 +88,7 @@ function App() {
 
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
-      <h1>🎙️ Talk to AI</h1>
+      <h1>🎙️ Talking Heads</h1>
 
       {/* AI Talking Head */}
       <TalkingHead isSpeaking={isSpeaking} />
@@ -99,9 +111,17 @@ function App() {
       </div>
 
       {/* Talk Button */}
-      <button onClick={startListening} style={{ marginTop: "20px", padding: "10px 20px" }}>
-        {listening ? "Listening..." : "🎤 Talk"}
-      </button>
+   <button 
+  onClick={startListening} 
+  style={{
+    marginTop: "20px", 
+    padding: "10px 20px", 
+    backgroundColor: listening ? "red" : "blue",
+    color: "white"
+  }}
+>
+  {listening ? "🎙️ Listening..." : "🎤 Talk"}
+</button>
     </div>
   );
 }
