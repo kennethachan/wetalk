@@ -174,6 +174,7 @@ import './App.css';
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import TalkingHead from "./Components/TalkingHead.js";
+import TalkingAvatar from "./Components/TalkingAvatar.js";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -291,18 +292,29 @@ function App() {
       const audioUrl = URL.createObjectURL(audioBlob);
 
       const audio = new Audio(audioUrl);
+
+      // Make the AI start talking (animate the face)
+      setIsSpeaking(true);
       audio.play();
+
+      audio.onended = () => {
+        setIsSpeaking(false); // Stop moving when done
+      };
     } catch (error) {
       console.error("TTS Error:", error);
     }
   };
 
+
+  
+
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
-      <h1>Fishing Buddy</h1>
+      <h1>Buddy</h1>
 
       {/* AI Talking Head */}
-      <TalkingHead isSpeaking={isSpeaking} />
+      {/* <TalkingHead isSpeaking={isSpeaking} /> */}
+      {/* <TalkingAvatar isSpeaking={isSpeaking} /> */}
 
       {/* Show Chat Messages Only If There's At Least One Message */}
       {messages.length > 0 && (
