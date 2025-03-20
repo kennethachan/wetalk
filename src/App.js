@@ -1,179 +1,6 @@
-// import './App.css';
-// import { useState, useRef } from "react";
-// import axios from "axios";
-// import TalkingHead from "./Components/TalkingHead.js";
-
-// function App() {
-//   const [messages, setMessages] = useState([]);
-//   const [listening, setListening] = useState(false);
-//   const [isSpeaking, setIsSpeaking] = useState(false);
-//   const recognitionRef = useRef(null);
-
-//   const startListening = () => {
-//     if (!("SpeechRecognition" in window) && !("webkitSpeechRecognition" in window)) {
-//       alert("Speech recognition is not supported in this browser. Try Google Chrome.");
-//       return;
-//     }
-  
-//     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-//     const recognition = new SpeechRecognition();
-//     recognition.lang = "en-US";
-//     recognition.interimResults = true; // Enable real-time speech detection
-  
-//     let silenceTimeout; // Track silence delay
-  
-//     recognition.onstart = () => {
-//       setListening(true);
-//       clearTimeout(silenceTimeout); // Reset timeout
-//     };
-  
-//     recognition.onend = () => {
-//       setListening(false);
-//     };
-  
-//     recognition.onresult = (event) => {
-//       const transcript = Array.from(event.results)
-//         .map((result) => result[0].transcript)
-//         .join("");
-  
-//       clearTimeout(silenceTimeout); // Reset the timeout if user speaks again
-  
-//       silenceTimeout = setTimeout(() => {
-//         // Stop recognition only if no speech for 3 seconds
-//         recognition.stop();
-//         setListening(false);
-//         if (transcript.trim()) sendMessage(transcript.trim()); // Send only if there's input
-//       }, 3000); // Wait 3 seconds after last detected speech
-//     };
-  
-//     recognition.start();
-//     recognitionRef.current = recognition;
-//   };
-  
-
-// const sendMessage = async (text) => {
-//   const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-//   if (!apiKey) {
-//     console.error("API key missing! Set REACT_APP_OPENAI_API_KEY in .env");
-//     return;
-//   }
-
-//   try {
-//     const res = await axios.post(
-//       "https://api.openai.com/v1/chat/completions",
-//       {
-//         model: "gpt-3.5-turbo",
-//         messages: [
-//           {
-//             role: "system",
-//             content: "You are a friendly fishing expert. Keep answers SHORT and complete. Avoid extra details unless asked. Limit responses to 1-2 sentences. Never leave sentences incomplete.",
-//           },
-//           ...messages.map((msg) => ({ role: msg.role, content: msg.content })),
-//           { role: "user", content: text }
-//         ],
-//         max_tokens: 90, // 🔹 Allows full short sentences
-//         temperature: 0.6, // 🔹 Keeps responses clear & to the point
-//         stop: ["\n", "."], // 🔹 Stops naturally at the end of a sentence
-//       },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${apiKey}`,
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
-
-//     const aiReply = res.data.choices[0].message.content;
-//     setMessages([...messages, { role: "user", content: text }, { role: "assistant", content: aiReply }]);
-
-//     speakText(aiReply);
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// };
-
-
-//   const speakText = async (text) => {
-//     const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-//     try {
-//       const response = await fetch("https://api.openai.com/v1/audio/speech", {
-//         method: "POST",
-//         headers: {
-//           "Authorization": `Bearer ${apiKey}`,
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           model: "tts-1", // OpenAI's TTS model
-//           input: text,
-//           voice: "alloy", // Options: alloy, echo, fable, onyx, nova, shimmer
-//         }),
-//       });
-  
-//       const audioData = await response.arrayBuffer();
-//       const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
-//       const audioUrl = URL.createObjectURL(audioBlob);
-      
-//       const audio = new Audio(audioUrl);
-//       audio.play();
-//     } catch (error) {
-//       console.error("TTS Error:", error);
-//     }
-//   };
-
-//   return (
-//     <div style={{ textAlign: "center", padding: "20px" }}>
-//       <h1>Fishing Buddy</h1>
-
-//       {/* AI Talking Head */}
-//       <TalkingHead isSpeaking={isSpeaking} />
-
-//       {/* Chat Messages */}
-//       <div>
-//         {messages.map((msg, index) => (
-//           <p key={index} style={{
-//             color: msg.role === "user" ? "blue" : "green",
-//             textAlign: msg.role === "user" ? "right" : "left",
-//             maxWidth: "60%",
-//             margin: "10px auto",
-//             padding: "10px",
-//             borderRadius: "10px",
-//             background: msg.role === "user" ? "#DDF" : "#F0F0F0",
-//           }}>
-//             {msg.role === "user" ? "You: " : "AI: "}{msg.content}
-//           </p>
-//         ))}
-//       </div>
-
-//       {/* Talk Button */}
-//    <button 
-//   onClick={startListening} 
-//   style={{
-//     marginTop: "20px", 
-//     padding: "10px 20px", 
-//     backgroundColor: listening ? "red" : "blue",
-//     color: "white"
-//   }}
-// >
-//   {listening ? "🎙️ Listening..." : "🎤 Talk"}
-// </button>
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-
-
-
-
-
-
-
 import './App.css';
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import TalkingHead from "./Components/TalkingHead.js";
 import TalkingAvatar from "./Components/TalkingAvatar.js";
 
 function App() {
@@ -286,35 +113,36 @@ function App() {
           voice: "alloy",
         }),
       });
-
+  
       const audioData = await response.arrayBuffer();
       const audioBlob = new Blob([audioData], { type: "audio/mpeg" });
       const audioUrl = URL.createObjectURL(audioBlob);
-
+  
       const audio = new Audio(audioUrl);
-
-      // Make the AI start talking (animate the face)
-      setIsSpeaking(true);
+  
+      setIsSpeaking(true);  // ✅ Start mouth animation
       audio.play();
-
+  
       audio.onended = () => {
-        setIsSpeaking(false); // Stop moving when done
+        setIsSpeaking(false); // ✅ Stop talking animation when done
       };
     } catch (error) {
       console.error("TTS Error:", error);
     }
   };
+  
 
 
   
 
   return (
-    <div style={{ textAlign: "center", padding: "20px" }}>
-      <h1>Buddy</h1>
+    <div>
+      <h1 className="title">We Talk</h1>
 
-      {/* AI Talking Head */}
-      {/* <TalkingHead isSpeaking={isSpeaking} /> */}
-      {/* <TalkingAvatar isSpeaking={isSpeaking} /> */}
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50vh" }}>
+  <TalkingAvatar isSpeaking={isSpeaking} />
+</div>
+
 
       {/* Show Chat Messages Only If There's At Least One Message */}
       {messages.length > 0 && (
@@ -364,6 +192,7 @@ function App() {
 >
   {listening ? "🎙️ Listening..." : "🎤 Talk"}
 </button>
+
 
     </div>
   );
